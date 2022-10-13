@@ -10,6 +10,7 @@ namespace ManejoPresupuesto.Services {
             connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
+        /* Crea una cuenta */
         public async Task Crear(CuentaModel cuenta) { 
             using var connection = new SqlConnection(connectionString);
 
@@ -20,6 +21,18 @@ namespace ManejoPresupuesto.Services {
                                                          SELECT SCOPE_IDENTITY();", cuenta);
 
             cuenta.Id = id;
+        }
+
+        /* Trae todo el listado de cuenta por el id del usuario */
+        public async Task<IEnumerable<CuentaModel>> ListadoCuentas(int usuarioID) {
+            using var connection = new SqlConnection(connectionString);
+
+            return await connection.QueryAsync<CuentaModel>(@"SELECT C.Id, C.Nombre, Balance, TC.Nombre AS TipoCuenta 
+                                                              FROM Cuentas C
+                                                              INNER JOIN TiposCuentas TC
+                                                              ON TC.Id = C.TipoCuentaId
+                                                              WHERE TC.UsuarioID = @UsuarioID
+                                                              ORDER BY TC.Orden", new { usuarioID });
         }
     }
 }

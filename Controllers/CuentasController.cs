@@ -19,9 +19,17 @@ namespace ManejoPresupuesto.Controllers {
 
         /* Listado de Cuentas */
         public async Task<IActionResult> Index(){
-            
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+            var cuentasTipoCuenta = await cuentasRepository.ListadoCuentas(usuarioID);
 
-            return View();
+            var modelo = cuentasTipoCuenta.GroupBy(x => x.TipoCuenta)
+                                          .Select(grupo => new IndiceCuentaModel {
+                                              TipoCuenta = grupo.Key,
+                                              Cuentas = grupo.AsEnumerable()
+                                          })
+                                          .ToList();
+
+            return View(modelo);
         }
 
         /* Muestra el formulario para crear una cuenta */
