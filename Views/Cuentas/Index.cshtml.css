@@ -13,7 +13,7 @@
         width: 100%;
     }
 
-.acordeon-cuenta ul li > span {
+.acordeon-cuenta ul li {
     display: flex;
     justify-content: space-between;
 }

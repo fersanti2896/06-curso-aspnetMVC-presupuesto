@@ -75,8 +75,14 @@
                             <li class="list-group-item">
                                 <span>
                                     <strong>@cuenta.Nombre</strong>
-                                    <span class="@claseCuenta">@formatearBalance(cuenta.Balance)</span>
+                                    <a class="btn btn-warning" asp-action="Editar" asp-route-id="@cuenta.Id">
+                                        <i class="bi-pencil-fill"></i>
+                                    </a>
+                                    <a class="btn btn-danger">
+                                        <i class="bi-trash-fill"></i>
+                                    </a>
                                 </span>
+                                <span class="@claseCuenta">@formatearBalance(cuenta.Balance)</span>
                             </li>
                         }
                     </ul>
