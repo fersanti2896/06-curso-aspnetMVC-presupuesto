@@ -10,6 +10,9 @@ builder.Services.AddTransient<ITiposCuentasRepository, TiposCuentasRepository>()
 builder.Services.AddTransient<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddTransient<ICuentasRepository, CuentasRepository>();
 
+/* Configuracion de AutoMapper */
+builder.Services.AddAutoMapper(typeof(Program));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

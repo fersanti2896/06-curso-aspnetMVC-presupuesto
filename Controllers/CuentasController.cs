@@ -1,4 +1,5 @@
-﻿using ManejoPresupuesto.Models;
+﻿using AutoMapper;
+using ManejoPresupuesto.Models;
 using ManejoPresupuesto.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,13 +9,16 @@ namespace ManejoPresupuesto.Controllers {
         private readonly ITiposCuentasRepository tiposCuentasRepository;
         private readonly IUsuarioRepository usuarioRepository;
         private readonly ICuentasRepository cuentasRepository;
+        private readonly IMapper mapper;
 
         public CuentasController(ITiposCuentasRepository tiposCuentasRepository, 
                                  IUsuarioRepository usuarioRepository, 
-                                 ICuentasRepository cuentasRepository) {
+                                 ICuentasRepository cuentasRepository,
+                                 IMapper mapper) {
             this.tiposCuentasRepository = tiposCuentasRepository;
             this.usuarioRepository = usuarioRepository;
             this.cuentasRepository = cuentasRepository;
+            this.mapper = mapper;
         }
 
         /* Listado de Cuentas */
@@ -81,13 +85,17 @@ namespace ManejoPresupuesto.Controllers {
                 return RedirectToAction("NoEncontrado", "Home");
             }
 
-            var modelo = new CuentaCreacionModel() { 
+            /* Mapeo manual */
+            /* var modelo = new CuentaCreacionModel() { 
                 Id = cuenta.Id,
                 Nombre = cuenta.Nombre,
                 TipoCuentaId = cuenta.TipoCuentaId,
                 Descripcion = cuenta.Descripcion,  
                 Balance = cuenta.Balance
-            };
+            }; */
+
+            /* Mapeo con AutoMapper */
+            var modelo = mapper.Map<CuentaCreacionModel>(cuenta);
 
             modelo.TiposCuentas = await ObtenerTiposCuentas(usuarioID);
 
@@ -112,6 +120,34 @@ namespace ManejoPresupuesto.Controllers {
 
             /* Actualiza la cuenta */
             await cuentasRepository.ActualizaCuenta(cuentaEditar);
+
+            return RedirectToAction("Index");
+        }
+
+        /* Muestra vista con la información de la cuenta a borrar */
+        [HttpGet]
+        public async Task<IActionResult> Borrar(int id) {
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+            var cuenta = await cuentasRepository.ObtenerCuentaById(id, usuarioID);
+
+            if (cuenta is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            return View(cuenta);
+        }
+
+        /* Elimina la cuenta */
+        [HttpPost]
+        public async Task<IActionResult> BorrarCuenta(int id) {
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+            var cuenta = await cuentasRepository.ObtenerCuentaById(id, usuarioID);
+
+            if (cuenta is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            await cuentasRepository.Borrar(id);
 
             return RedirectToAction("Index");
         }

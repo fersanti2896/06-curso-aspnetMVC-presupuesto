@@ -55,5 +55,12 @@ namespace ManejoPresupuesto.Services {
                                             SET Nombre = @Nombre, Balance = @Balance, Descripcion = @Descripcion, TipoCuentaId = @TipoCuentaId
                                             WHERE Id = @Id", cuenta);    
         }
+
+        /* Borra cuenta */
+        public async Task Borrar(int id) {
+            using var connection = new SqlConnection(connectionString);
+
+            await connection.ExecuteAsync(@"DELETE Cuentas WHERE Id = @Id", new { id });
+        }
     }
 }
