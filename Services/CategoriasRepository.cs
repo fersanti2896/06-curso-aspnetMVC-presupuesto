@@ -21,5 +21,12 @@ namespace ManejoPresupuesto.Services {
 
             categoria.Id = id;  
         }
+
+        public async Task<IEnumerable<CategoriaModel>> ObtenerCategorias(int usuarioID) {
+            using var connection = new SqlConnection(configurationString);
+
+            return await connection.QueryAsync<CategoriaModel>(@"SELECT * FROM Categorias
+                                                                 WHERE UsuarioID = @UsuarioID", new { usuarioID });
+        }
     }
 }

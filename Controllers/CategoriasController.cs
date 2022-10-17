@@ -13,6 +13,14 @@ namespace ManejoPresupuesto.Controllers {
             this.usuarioRepository = usuarioRepository;
         }
 
+        /* Vista para el listado de Categorias */
+        public async Task<IActionResult> Index() {
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+            var categorias = await categoriasRepository.ObtenerCategorias(usuarioID);
+
+            return View(categorias);   
+        }
+
         /* Vista para crear categoria */
         [HttpGet]
         public IActionResult Crear() { 
