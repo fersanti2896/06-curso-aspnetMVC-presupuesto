@@ -2,7 +2,9 @@
 
 namespace ManejoPresupuesto.Services {
     public interface ICategoriasRepository {
-        Task Crear(CategoriaModel categoria);
+        Task ActualizarCategoria(CategoriaModel categoria);
+        Task CrearCategoria(CategoriaModel categoria);
+        Task<CategoriaModel> ObtenerCategoriaById(int id, int usuarioID);
         Task<IEnumerable<CategoriaModel>> ObtenerCategorias(int usuarioID);
     }
 }
