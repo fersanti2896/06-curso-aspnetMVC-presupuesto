@@ -55,5 +55,40 @@ namespace ManejoPresupuesto.Controllers {
 
             return View(modelo);
         }
+
+        /* Guarda la transacción creada en BD */
+        [HttpPost]
+        public async Task<IActionResult> Crear(TransaccionCreacionModel modelo) {
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+
+            if (!ModelState.IsValid) {
+                modelo.Cuentas = await ObtenerCuentas(usuarioID);
+                modelo.Categorias = await ListadoCategoriasByTipoOperacion(usuarioID, modelo.TipoOperacionId);
+
+                return View(modelo);
+            }
+
+            var cuenta = await cuentasRepository.ObtenerCuentaById(modelo.CuentaID, usuarioID);
+            
+            if (cuenta is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            var categoria = await categoriasRepository.ObtenerCategoriaById(modelo.CategoriaID, usuarioID);
+
+            if (categoria is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            modelo.UsuarioID = usuarioID;
+
+            if (modelo.TipoOperacionId == TipoOperacionModel.Gasto) {
+                modelo.Monto *= -1;
+            }
+
+            await transaccionesRepository.Crear(modelo);
+
+            return RedirectToAction("Index");
+        }
     }
 }
