@@ -56,5 +56,14 @@ namespace ManejoPresupuesto.Services {
 
             await connection.ExecuteAsync(@"DELETE Categorias WHERE Id = @Id", new { id });
         }
+
+        /* Obtiene las categorias en base al tipo de operacion */
+        public async Task<IEnumerable<CategoriaModel>> ObtenerCategoriasByTipoOperacion(int usuarioID, TipoOperacionModel tipoOperacionID) {
+            using var connection = new SqlConnection(connectionString);
+
+            return await connection.QueryAsync<CategoriaModel>(@"SELECT * FROM Categorias
+                                                                 WHERE UsuarioID = @UsuarioID AND TipoOperacionID = @TipoOperacionID",
+                                                                 new { usuarioID, tipoOperacionID });
+        }
     }
 }

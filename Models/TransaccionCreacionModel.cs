@@ -8,6 +8,6 @@ namespace ManejoPresupuesto.Models {
         public IEnumerable<SelectListItem> Categorias { get; set; }
 
         [Display(Name = "Tipo de Operación")]
-        public TipoOperacionModel TipoOperacionId { get; set; }
+        public TipoOperacionModel TipoOperacionId { get; set; } = TipoOperacionModel.Ingreso;
     }
 }

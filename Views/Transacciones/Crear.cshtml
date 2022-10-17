@@ -31,7 +31,7 @@
 
     <div class="mb-3">
         <label asp-for="CategoriaID" class="form-label"></label>
-        <select asp-for="CategoriaID" class="form-select"></select>
+        <select asp-for="CategoriaID" asp-items="Model.Categorias" class="form-select"></select>
         <span asp-validation-for="CategoriaID" class="text-danger"></span>
     </div>
 
@@ -53,4 +53,29 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const urlCategorias = '@Url.Action("ObtenerCategorias")';
+
+        $(function () {
+            $("#TipoOperacionId").change(async function() {
+                const valueSelect = $(this).val();
+            
+                const resp = await fetch(urlCategorias, {
+                    method: 'POST',
+                    body: valueSelect,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await resp.json();
+                const opciones = result.map(categoria => 
+                                            `<option value="${ categoria.value }">${ categoria.text }</option>`
+                                         );
+
+                $("#CategoriaID").html(opciones);
+            });
+        });
+    </script>
 }
