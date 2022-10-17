@@ -49,5 +49,12 @@ namespace ManejoPresupuesto.Services {
                                             WHERE Id = @Id",
                                            categoria);
         }
+
+        /* Borrando una categoria */
+        public async Task BorrarCategoria(int id) {
+            using var connection = new SqlConnection(connectionString);
+
+            await connection.ExecuteAsync(@"DELETE Categorias WHERE Id = @Id", new { id });
+        }
     }
 }
