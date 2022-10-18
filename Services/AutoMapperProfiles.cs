@@ -6,6 +6,7 @@ namespace ManejoPresupuesto.Services {
         public AutoMapperProfiles() {
             /* De que tipo de dato a que tipo de dato se va a mapear */
             CreateMap<CuentaModel, CuentaCreacionModel>();
+            CreateMap<TransaccionActualizacionModel, TransaccionModel>().ReverseMap();
         }
     }
 }

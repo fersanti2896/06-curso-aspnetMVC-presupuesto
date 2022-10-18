@@ -26,5 +26,8 @@ namespace ManejoPresupuesto.Models {
         [Display(Name = "Categoría")]
         [Range(0, maximum: int.MaxValue, ErrorMessage = "Debe seleccionar una categoría")]
         public int CategoriaID { get; set; }
+
+        [Display(Name = "Tipo de Operación")]
+        public TipoOperacionModel TipoOperacionId { get; set; } = TipoOperacionModel.Ingreso;
     }
 }

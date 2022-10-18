@@ -1,4 +1,5 @@
-﻿using ManejoPresupuesto.Models;
+﻿using AutoMapper;
+using ManejoPresupuesto.Models;
 using ManejoPresupuesto.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,15 +10,18 @@ namespace ManejoPresupuesto.Controllers {
         private readonly ITransaccionesRepository transaccionesRepository;
         private readonly ICuentasRepository cuentasRepository;
         private readonly ICategoriasRepository categoriasRepository;
+        private readonly IMapper mapper;
 
         public TransaccionesController(IUsuarioRepository usuarioRepository,
                                        ITransaccionesRepository transaccionesRepository, 
                                        ICuentasRepository cuentasRepository, 
-                                       ICategoriasRepository categoriasRepository) {
+                                       ICategoriasRepository categoriasRepository,
+                                       IMapper mapper) {
             this.usuarioRepository = usuarioRepository;
             this.transaccionesRepository = transaccionesRepository;
             this.cuentasRepository = cuentasRepository;
             this.categoriasRepository = categoriasRepository;
+            this.mapper = mapper;
         }
 
         public async Task<IActionResult> Index() { 
@@ -87,6 +91,65 @@ namespace ManejoPresupuesto.Controllers {
             }
 
             await transaccionesRepository.Crear(modelo);
+
+            return RedirectToAction("Index");
+        }
+
+        /* Crea la vista para actualizar una transacción */
+        [HttpGet]
+        public async Task<IActionResult> Editar(int id) {
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+            var transaccion = await transaccionesRepository.ObtenerTransaccionById(id, usuarioID);
+
+            if (transaccion is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            var modelo = mapper.Map<TransaccionActualizacionModel>(transaccion);
+            modelo.MontoAnterior = modelo.Monto;
+
+            if (modelo.TipoOperacionId == TipoOperacionModel.Gasto) {
+                modelo.MontoAnterior = modelo.Monto * -1;
+            }
+
+            modelo.CuentaAnteriorID = transaccion.CuentaID;
+            modelo.Categorias = await ListadoCategoriasByTipoOperacion(usuarioID, transaccion.TipoOperacionId);
+            modelo.Cuentas = await ObtenerCuentas(usuarioID);
+
+            return View(modelo);
+        }
+
+        /* Actualiza la información de la transacción */
+        [HttpPost]
+        public async Task<IActionResult> Editar(TransaccionActualizacionModel modelo) { 
+            var usuarioID = usuarioRepository.ObtenerUsuarioID();
+            
+            if (!ModelState.IsValid) {
+                modelo.Cuentas = await ObtenerCuentas(usuarioID);
+                modelo.Categorias = await ListadoCategoriasByTipoOperacion(usuarioID, modelo.TipoOperacionId);
+
+                return View(modelo);
+            }
+
+            var cuenta = await cuentasRepository.ObtenerCuentaById(modelo.CuentaID, usuarioID);
+
+            if (cuenta is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            var categoria = await categoriasRepository.ObtenerCategoriaById(modelo.CategoriaID, usuarioID);
+
+            if (categoria is null) {
+                return RedirectToAction("NoEncontrado", "Home");
+            }
+
+            var transaccion = mapper.Map<TransaccionModel>(modelo);
+
+            if (modelo.TipoOperacionId == TipoOperacionModel.Gasto) {
+                transaccion.Monto *= -1;
+            }
+
+            await transaccionesRepository.ActualizarTransaccion(transaccion, modelo.MontoAnterior, modelo.CuentaAnteriorID);
 
             return RedirectToAction("Index");
         }

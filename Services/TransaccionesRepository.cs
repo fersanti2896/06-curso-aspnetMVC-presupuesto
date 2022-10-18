@@ -27,5 +27,33 @@ namespace ManejoPresupuesto.Services {
 
             transaccion.Id = id;
         }
+
+        /* Obtiene una transacción por su id y el id del usuario */
+        public async Task<TransaccionModel> ObtenerTransaccionById(int id, int usuarioID) {
+            using var connection = new SqlConnection(connectionString);
+
+            return await connection.QueryFirstOrDefaultAsync<TransaccionModel>(@"SELECT Transacciones.*, Cat.TipoOperacionID
+                                                                                 FROM Transacciones
+                                                                                 INNER JOIN Categorias Cat
+                                                                                 ON Cat.Id = Transacciones.CategoriaID
+                                                                                 WHERE Transacciones.Id = @Id AND Transacciones.UsuarioID = @UsuarioID",
+                                                                                 new { id, usuarioID });
+        }
+
+        /* Actualizando Transaccion */
+        public async Task ActualizarTransaccion(TransaccionModel transaccion, decimal montoAnterior, int cuentaAnteriorID) {
+            using var connection = new SqlConnection(connectionString);
+
+            await connection.ExecuteAsync("Transacciones_Actualizar", new { 
+                transaccion.Id,
+                transaccion.FechaTransaccion,
+                transaccion.Monto,
+                transaccion.CategoriaID,
+                transaccion.CuentaID,
+                transaccion.Nota,
+                montoAnterior, 
+                cuentaAnteriorID
+            }, commandType: System.Data.CommandType.StoredProcedure);
+        }
     }
 }
